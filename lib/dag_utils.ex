@@ -4,11 +4,11 @@ defmodule DagUtils do
   @type adjacency_list :: %{required(node_id()) => node_list()}
 
   @doc """
-  Get internal and leaf children for all nodes
+  Get internal and leaf reachable nodes for all nodes
 
   ### Example
   ```
-  get_internal_and_leaf_nodes(%{
+  get_internal_and_leaf_reachable_nodes(%{
     "ID1" => ["ID2"],
     "ID2" => []
   })
@@ -18,19 +18,29 @@ defmodule DagUtils do
   }
   ```
   """
-  @spec get_internal_and_leaf_nodes(adjacency_list()) :: {node_list, node_list}
-  def get_internal_and_leaf_nodes(adjacency_list) do
-    Enum.reduce(adjacency_list, %{}, fn {node_id, direct_children}, dag_computed ->
-      case Map.has_key?(dag_computed, node_id) do
-        # Already computed
-        true ->
-          dag_computed
+  @spec get_internal_and_leaf_reachable_nodes(adjacency_list()) :: %{required(node_id()) => {node_list, node_list}}
+  def get_internal_and_leaf_reachable_nodes(adjacency_list) do
+    DagUtils.LeafAndInternalDfs.compute(adjacency_list)
+  end
 
-        # Not computed yet
-        false ->
-          DagUtils.FullChildrenDfs.enriched_with_subgraph(dag_computed, adjacency_list, node_id, direct_children)
-      end
-    end)
+  @doc """
+  Get all descendents for all nodes
+
+  ### Example
+  ```
+  get_internal_and_leaf_nodes(%{
+    "ID1" => ["ID2"],
+    "ID2" => []
+  })
+  > %{
+    "ID1" => ["ID2"],
+    "ID2" => [],
+  }
+  ```
+  """
+  @spec get_reachable_nodes(adjacency_list()) :: %{required(node_id()) => node_list}
+  def get_reachable_nodes(adjacency_list) do
+    DagUtils.DescendentsDfs.compute(adjacency_list)
   end
 
 end

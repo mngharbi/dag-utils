@@ -24,24 +24,31 @@ defmodule DagUtilsTest do
 
   @expected_A_internal []
   @expected_A_leafs []
+  @expected_A_all @expected_A_internal ++ @expected_A_leafs
 
   @expected_B_internal ["F"]
   @expected_B_leafs ["G"]
+  @expected_B_all @expected_B_internal ++ @expected_B_leafs
 
   @expected_C_internal ["E", "F"]
   @expected_C_leafs ["A", "G"]
+  @expected_C_all @expected_C_internal ++ @expected_C_leafs
 
   @expected_D_internal []
   @expected_D_leafs []
+  @expected_D_all @expected_D_internal ++ @expected_D_leafs
 
   @expected_E_internal []
   @expected_E_leafs ["A", "G"]
+  @expected_E_all @expected_E_internal ++ @expected_E_leafs
 
   @expected_F_internal []
   @expected_F_leafs ["G"]
+  @expected_F_all @expected_F_internal ++ @expected_F_leafs
 
   @expected_G_internal []
   @expected_G_leafs []
+  @expected_G_all @expected_G_internal ++ @expected_G_leafs
 
   defp shuffled_dag(adjacency_list) do
     Enum.reduce(adjacency_list, %{}, fn {parent_id, children}, acc ->
@@ -49,7 +56,7 @@ defmodule DagUtilsTest do
     end)
   end
 
-  describe "get_internal_and_leaf_nodes" do
+  describe "get_internal_and_leaf_reachable_nodes" do
     test "computation is correct" do
       dag = shuffled_dag(@dag)
       %{
@@ -60,7 +67,7 @@ defmodule DagUtilsTest do
         "E" => {computed_E_internal, computed_E_leafs},
         "F" => {computed_F_internal, computed_F_leafs},
         "G" => {computed_G_internal, computed_G_leafs}
-      } = DagUtils.get_internal_and_leaf_nodes(dag)
+      } = DagUtils.get_internal_and_leaf_reachable_nodes(dag)
 
       assert Enum.sort(@expected_A_internal) == Enum.sort(computed_A_internal)
       assert Enum.sort(@expected_A_leafs) == Enum.sort(computed_A_leafs)
@@ -82,6 +89,35 @@ defmodule DagUtilsTest do
 
       assert Enum.sort(@expected_G_internal) == Enum.sort(computed_G_internal)
       assert Enum.sort(@expected_G_leafs) == Enum.sort(computed_G_leafs)
+    end
+  end
+
+  describe "get_reachable_nodes" do
+    test "computation is correct" do
+      dag = shuffled_dag(@dag)
+      %{
+        "A" => computed_A_all,
+        "B" => computed_B_all,
+        "C" => computed_C_all,
+        "D" => computed_D_all,
+        "E" => computed_E_all,
+        "F" => computed_F_all,
+        "G" => computed_G_all
+      } = DagUtils.get_reachable_nodes(dag)
+
+      assert Enum.sort(@expected_A_all) == Enum.sort(computed_A_all)
+
+      assert Enum.sort(@expected_B_all) == Enum.sort(computed_B_all)
+
+      assert Enum.sort(@expected_C_all) == Enum.sort(computed_C_all)
+
+      assert Enum.sort(@expected_D_all) == Enum.sort(computed_D_all)
+
+      assert Enum.sort(@expected_E_all) == Enum.sort(computed_E_all)
+
+      assert Enum.sort(@expected_F_all) == Enum.sort(computed_F_all)
+
+      assert Enum.sort(@expected_G_all) == Enum.sort(computed_G_all)
     end
   end
 end
